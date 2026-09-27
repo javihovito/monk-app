@@ -1,30 +1,10 @@
 import * as THREE from 'three';
+import type { GalaxyDrive } from '../math/galaxy';
 import { buildNetwork, type NetworkOptions } from '../math/network';
 import { dustFragment, dustVertex, lineFragment, lineVertex, nodeFragment, nodeVertex } from './shaders/network';
 
-/** Everything the network needs for one frame, already eased. */
-export interface NetworkFrame {
-  lineOpacity: number;
-  nodeScale: number;
-  nodeBrightness: number;
-  /** Uniform scale of the whole network (swell). */
-  swell: number;
-  rotSpeed: number;
-  /** Camera push-in, in world units. */
-  push: number;
-  /** Camera shake amplitude, in world units. */
-  shake: number;
-}
-
-export const NETWORK_REST: NetworkFrame = {
-  lineOpacity: 0.12,
-  nodeScale: 1,
-  nodeBrightness: 1,
-  swell: 1,
-  rotSpeed: 0.012,
-  push: 0,
-  shake: 0,
-};
+/** Everything the network needs for one frame, already computed (see math/galaxy). */
+export type NetworkFrame = Pick<GalaxyDrive, 'lineOpacity' | 'nodeScale' | 'nodeBrightness' | 'swell' | 'rotSpeed' | 'push' | 'shake'>;
 
 const CAMERA_DISTANCE = 42;
 

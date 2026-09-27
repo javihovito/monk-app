@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { skyFragment, skyVertex } from './shaders/sky';
-import type { Rgb } from './orb';
+import type { Rgb } from '../math/states';
 
 export interface SkyFrame {
   orbColor: Rgb;

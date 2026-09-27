@@ -9,14 +9,14 @@
 </head>
 <body>
 <canvas id="face" aria-hidden="true"></canvas>
-<details class="panel" id="debug">
-  <summary>Orb debug</summary>
-  <label>Voice level <input type="range" name="level" min="0" max="1" step="0.01" value="0"></label>
-  <label>Bass <input type="range" name="bass" min="0" max="1" step="0.01" value="0"></label>
-  <label>Treble <input type="range" name="treble" min="0" max="1" step="0.01" value="0"></label>
-  <label>Rings <input type="range" name="ringOpacity" min="0" max="1" step="0.01" value="0"></label>
-  <button type="button" id="recreate">Destroy and recreate</button>
-</details>
+<div class="panel" id="controls">
+  <div class="row" id="states" role="group" aria-label="State"></div>
+  <div class="row">
+    <button type="button" id="mic">Use mic</button>
+    <button type="button" id="tone">Play test tone</button>
+    <button type="button" id="recreate">Destroy and recreate</button>
+  </div>
+</div>
 <script type="module" src="./demo/main.ts"></script>
 </body>
 </html>

@@ -12,6 +12,7 @@ uniform float uAmp;
 uniform float uLevel;
 uniform float uBass;
 uniform float uTreble;
+uniform float uBreath;
 
 varying vec3 vNormalV;
 varying vec3 vViewPos;
@@ -30,7 +31,7 @@ void main() {
   float hi = snoise(n * 3.6 + vec3(t * 0.9, -t * 0.7, t * 0.8)) * hiGate;
   float noise = 0.5 * lo + 0.3 * mid + 0.2 * hi;
 
-  float breath = (0.5 + 0.5 * sin(uClock * 0.7)) * 0.04;
+  float breath = (0.5 + 0.5 * sin(uClock * 0.7)) * 0.04 * uBreath;
   float drive = uBase + breath + uLevel * uAmp * 0.55 + uBass * uAmp * 0.35;
 
   // Small bass "push": a wave that rolls over the surface on low end.
@@ -95,7 +96,7 @@ void main() {
   float d = abs(dot(normalize(vNormalV), viewDir));
   float outer = smoothstep(0.0, 0.62, d);          // fade out toward the shell edge
   float inner = 1.0 - smoothstep(0.58, 0.92, d);   // fade out toward the centre
-  float halo = pow(outer, 2.2) * inner;
+  float halo = pow(outer, 3.0) * inner;
   gl_FragColor = vec4(uColor * halo * uGlow, halo * uGlow);
 }
 `;

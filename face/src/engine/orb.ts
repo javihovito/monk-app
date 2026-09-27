@@ -1,25 +1,13 @@
 import * as THREE from 'three';
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import type { VisualParams } from '../math/states';
+import type { AudioLevels } from '../math/audio';
 import { glowFragment, glowVertex, orbFragment, orbVertex } from './shaders/orb';
 
-export type Rgb = [number, number, number];
+export type { Rgb } from '../math/states';
 
 /** Everything the orb needs for one frame. Already eased; the orb only draws it. */
-export interface OrbFrame {
-  colorA: Rgb;
-  colorB: Rgb;
-  opacity: number;
-  fresnelPow: number;
-  noiseSpeed: number;
-  amp: number;
-  base: number;
-  glow: number;
-  rotSpeed: number;
-  ringOpacity: number;
-  level: number;
-  bass: number;
-  treble: number;
-}
+export type OrbFrame = VisualParams & AudioLevels;
 
 const RING_RADII = [1.55, 1.65, 1.75];
 const RING_TILTS: Array<[number, number]> = [
@@ -56,6 +44,7 @@ export class Orb {
         uLevel: { value: 0 },
         uBass: { value: 0 },
         uTreble: { value: 0 },
+        uBreath: { value: 1 },
         uColorA: { value: new THREE.Vector3() },
         uColorB: { value: new THREE.Vector3() },
         uOpacity: { value: 1 },
@@ -128,6 +117,7 @@ export class Orb {
     u.uLevel.value = f.level;
     u.uBass.value = f.bass;
     u.uTreble.value = f.treble;
+    u.uBreath.value = f.breath;
     (u.uColorA.value as THREE.Vector3).set(...f.colorA);
     (u.uColorB.value as THREE.Vector3).set(...f.colorB);
     u.uOpacity.value = f.opacity;
@@ -135,7 +125,7 @@ export class Orb {
 
     const g = this.glow.material.uniforms;
     (g.uColor.value as THREE.Vector3).set(...f.colorA);
-    g.uGlow.value = f.glow * (1 + f.level * 0.8);
+    g.uGlow.value = f.glow * (1 + f.level * 0.5);
 
     this.spin.rotation.y += dt * f.rotSpeed;
     this.spin.rotation.x = Math.sin(clock * 0.11) * 0.18;

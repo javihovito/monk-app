@@ -3,9 +3,12 @@
   --panel-bg: rgba(12, 18, 28, 0.72);
   --panel-fg: #cfe7e4;
   --panel-border: rgba(94, 234, 212, 0.18);
+  --btn-bg: rgba(94, 234, 212, 0.08);
+  --btn-bg-active: rgba(94, 234, 212, 0.28);
 }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--panel-fg); font: 14px/1.4 system-ui, sans-serif; overflow: hidden; }
 #face { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
-.panel { position: fixed; left: 16px; bottom: 16px; padding: 10px 12px; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 10px; backdrop-filter: blur(6px); }
-.panel label { display: flex; justify-content: space-between; gap: 12px; margin: 6px 0; }
-.panel button { margin-top: 6px; }
+.panel { position: fixed; left: 16px; right: 16px; bottom: 16px; max-width: 640px; padding: 10px 12px; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; backdrop-filter: blur(6px); }
+.row { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+button { font: inherit; color: var(--panel-fg); background: var(--btn-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 5px 10px; cursor: pointer; }
+button[aria-pressed="true"] { background: var(--btn-bg-active); }
