@@ -13,3 +13,12 @@ button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .segmented svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 #theme { position: fixed; top: 16px; right: 16px; }
 .connection { position: fixed; left: 16px; bottom: 16px; margin: 0; color: var(--fg-muted); font-size: 13px; }
+.face-captions { position: fixed; left: 50%; bottom: 9vh; transform: translateX(-50%); width: min(720px, calc(100% - 32px)); text-align: center; pointer-events: none; }
+.face-caption { margin: 6px 0; font-size: clamp(15px, 2.2vw, 20px); line-height: 1.45; text-shadow: 0 1px 8px var(--caption-shadow); opacity: 0; transition: opacity 0.8s ease; }
+.face-caption.visible { opacity: 1; }
+.face-caption-user { color: var(--caption-user); font-style: italic; }
+.face-caption-monk { color: var(--caption-monk); }
+.face-info { position: fixed; top: 16px; left: 16px; margin: 0; padding: 0; list-style: none; color: var(--fg-muted); font-size: 14px; opacity: 0; transition: opacity 1.2s ease; pointer-events: none; }
+.face-info.visible { opacity: 1; }
+.face-info li { margin: 2px 0; }
+@media (prefers-reduced-motion: reduce) { .face-caption, .face-info { transition: none; } }
