@@ -87,3 +87,17 @@ export function withToken(url: string, token: string | null): string {
 export function reconnectDelay(attempt: number): number {
   return Math.min(10_000, 500 * 2 ** Math.max(0, attempt));
 }
+
+/**
+ * Accepts a `?ws=` override only when it points at the page's own host or loopback,
+ * so a crafted link can't send the mic stream or token to another machine.
+ */
+export function safeBridgeUrl(override: string | null, pageHost: string, fallback: string): string {
+  if (!override) return fallback;
+  try {
+    const u = new URL(override);
+    const loopback = u.hostname === '127.0.0.1' || u.hostname === 'localhost';
+    if ((u.protocol === 'ws:' || u.protocol === 'wss:') && (loopback || u.hostname === pageHost)) return override;
+  } catch { /* invalid URL */ }
+  return fallback;
+}

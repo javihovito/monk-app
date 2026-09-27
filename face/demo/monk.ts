@@ -1,10 +1,10 @@
-import { connectBridge, createFace, createOverlay, createRemoteTalk, DEFAULT_BRIDGE_URL, withToken, type FaceEngine, type RemoteTalk } from '../src/index';
+import { connectBridge, createFace, createOverlay, createRemoteTalk, DEFAULT_BRIDGE_URL, safeBridgeUrl, withToken, type FaceEngine, type RemoteTalk } from '../src/index';
 import { setupThemeSwitch } from './theme';
 
 // Full-screen face driven by Monk's voice loop.
-// ?ws=ws://host:port/path overrides the socket; ?token=... is passed through for LAN viewing.
+// ?ws=ws://host:port/path overrides the socket (same host or loopback only); ?token=... is passed through for LAN viewing.
 const params = new URLSearchParams(location.search);
-const url = withToken(params.get('ws') ?? DEFAULT_BRIDGE_URL, params.get('token'));
+const url = withToken(safeBridgeUrl(params.get('ws'), location.hostname, DEFAULT_BRIDGE_URL), params.get('token'));
 const canvas = document.getElementById('face') as HTMLCanvasElement;
 const status = document.getElementById('connection')!;
 

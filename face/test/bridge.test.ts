@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_CAPTION_CHARS, parseBridgeMessage, reconnectDelay, withToken } from '../src/math/bridge';
+import { MAX_CAPTION_CHARS, parseBridgeMessage, reconnectDelay, safeBridgeUrl, withToken } from '../src/math/bridge';
 
 describe('bridge protocol', () => {
   it('parses state messages and rejects unknown states', () => {
@@ -57,5 +57,19 @@ describe('bridge protocol', () => {
     expect(reconnectDelay(0)).toBe(500);
     expect(reconnectDelay(3)).toBe(4000);
     expect(reconnectDelay(20)).toBe(10_000);
+  });
+});
+
+describe('safeBridgeUrl', () => {
+  const fb = 'ws://127.0.0.1:8767/face';
+  it('keeps same-host and loopback overrides', () => {
+    expect(safeBridgeUrl('wss://192.168.1.5:8767/face', '192.168.1.5', fb)).toBe('wss://192.168.1.5:8767/face');
+    expect(safeBridgeUrl('ws://localhost:9000/face', 'x', fb)).toBe('ws://localhost:9000/face');
+  });
+  it('rejects other hosts, other schemes and junk', () => {
+    expect(safeBridgeUrl('wss://evil.example/face', '192.168.1.5', fb)).toBe(fb);
+    expect(safeBridgeUrl('https://192.168.1.5/face', '192.168.1.5', fb)).toBe(fb);
+    expect(safeBridgeUrl('not a url', '192.168.1.5', fb)).toBe(fb);
+    expect(safeBridgeUrl(null, '192.168.1.5', fb)).toBe(fb);
   });
 });
