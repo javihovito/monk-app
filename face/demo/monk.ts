@@ -22,6 +22,7 @@ const bridge = connectBridge(face, url, {
   onTtsStart: (rate) => talk?.ttsStart(rate),
   onTtsChunk: (chunk) => talk?.ttsChunk(chunk),
   onTtsEnd: () => talk?.ttsEnd(),
+  onBusy: () => talk?.busy(),
 });
 
 // Hold-to-talk only on another device (the Mini has its own mic) and only where the mic is allowed.

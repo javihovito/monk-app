@@ -7,6 +7,8 @@ export interface RemoteTalk {
   ttsStart(rate: number): void;
   ttsChunk(chunk: ArrayBuffer): void;
   ttsEnd(): void;
+  /** Monk refused the turn; shows a short notice and releases the mic. */
+  busy(): void;
   destroy(): void;
 }
 
@@ -32,6 +34,15 @@ export function createRemoteTalk(face: FaceEngine, bridge: BridgeConnection, par
   let out: GainNode | null = null;
   let ttsRate = 22050;
   let playhead = 0;
+  let busyTimer = 0;
+  const playing = new Set<AudioBufferSourceNode>();
+
+  // A new turn interrupts whatever reply is still queued.
+  const cutPlayback = (): void => {
+    for (const n of playing) n.stop();
+    playing.clear();
+    playhead = 0;
+  };
 
   const audio = (): AudioContext => {
     if (!ctx) {
@@ -47,6 +58,8 @@ export function createRemoteTalk(face: FaceEngine, bridge: BridgeConnection, par
   const start = async (): Promise<void> => {
     if (talking || !bridge.connected) return;
     talking = true;
+    clearTimeout(busyTimer);
+    cutPlayback();
     button.setAttribute('aria-pressed', 'true');
     button.textContent = 'Listening…';
     try {
@@ -117,12 +130,20 @@ export function createRemoteTalk(face: FaceEngine, bridge: BridgeConnection, par
       const node = ctx.createBufferSource();
       node.buffer = buf;
       node.connect(out);
+      playing.add(node);
+      node.onended = () => playing.delete(node);
       playhead = Math.max(playhead, ctx.currentTime);
       node.start(playhead);
       playhead += buf.duration;
     },
     ttsEnd() {
-      /* playback drains on its own */
+      /* replies are paced in real time, so the little that is queued drains on its own */
+    },
+    busy() {
+      stop();
+      button.textContent = 'Monk is busy';
+      clearTimeout(busyTimer);
+      busyTimer = window.setTimeout(() => { if (!talking) button.textContent = 'Hold to talk'; }, 2000);
     },
     destroy() {
       stop();

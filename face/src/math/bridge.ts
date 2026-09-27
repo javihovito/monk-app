@@ -9,6 +9,7 @@ import type { AudioLevels } from './audio';
  *   {"type": "caption", "who": "user" | "monk", "text": "...", "final": true}
  *   {"type": "info", "items": [{"kind": "meeting" | "email", "text": "..."}]}   // at most 3 shown
  *   {"type": "tts", "rate": 22050}  then binary Int16 LE mono chunks, then {"type": "tts_end"}
+ *   {"type": "busy"}  push-to-talk refused: someone else is talking or Monk is mid-turn
  *
  * Page → Monk (remote talk, LAN token mode only):
  *   {"type": "ptt", "down": true | false}  with binary Int16 LE mono 16 kHz frames in between
@@ -25,7 +26,8 @@ export type BridgeMessage =
   | { type: 'caption'; who: CaptionSpeaker; text: string; final: boolean }
   | { type: 'info'; items: InfoItem[] }
   | { type: 'tts'; rate: number }
-  | { type: 'tts_end' };
+  | { type: 'tts_end' }
+  | { type: 'busy' };
 
 export const MAX_CAPTION_CHARS = 280;
 export const MAX_INFO_ITEMS = 3;
@@ -58,6 +60,7 @@ export function parseBridgeMessage(raw: string): BridgeMessage | null {
     return { type: 'tts', rate: m.rate };
   }
   if (m.type === 'tts_end') return { type: 'tts_end' };
+  if (m.type === 'busy') return { type: 'busy' };
   if (m.type === 'info' && Array.isArray(m.items)) {
     const items: InfoItem[] = [];
     for (const it of m.items) {

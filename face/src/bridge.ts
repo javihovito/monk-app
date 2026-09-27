@@ -12,6 +12,8 @@ export interface BridgeOptions {
   /** One chunk of Int16 LE mono reply audio. */
   onTtsChunk?: (chunk: ArrayBuffer) => void;
   onTtsEnd?: () => void;
+  /** Monk refused a push-to-talk because it is busy. */
+  onBusy?: () => void;
 }
 
 export interface BridgeConnection {
@@ -52,7 +54,8 @@ export function connectBridge(face: FaceEngine, url = DEFAULT_BRIDGE_URL, opts: 
       else if (msg.type === 'caption') opts.onCaption?.(msg.who, msg.text, msg.final);
       else if (msg.type === 'info') opts.onInfo?.(msg.items);
       else if (msg.type === 'tts') opts.onTtsStart?.(msg.rate);
-      else opts.onTtsEnd?.();
+      else if (msg.type === 'tts_end') opts.onTtsEnd?.();
+      else opts.onBusy?.();
     };
     ws.onclose = () => {
       connected = false;

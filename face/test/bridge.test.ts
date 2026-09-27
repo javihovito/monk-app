@@ -73,3 +73,9 @@ describe('safeBridgeUrl', () => {
     expect(safeBridgeUrl(null, '192.168.1.5', fb)).toBe(fb);
   });
 });
+
+describe('busy message', () => {
+  it('parses busy', () => {
+    expect(parseBridgeMessage('{"type":"busy"}')).toEqual({ type: 'busy' });
+  });
+});
