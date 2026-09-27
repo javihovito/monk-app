@@ -1,0 +1,24 @@
+/* Every UI colour lives here. Nothing else in the UI may name a colour (see scripts/check-colors.mjs). */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #05070d;
+  --fg: #cfe7e4;
+  --fg-muted: #8fb1ad;
+  --panel-bg: rgba(12, 18, 28, 0.72);
+  --panel-border: rgba(94, 234, 212, 0.18);
+  --btn-bg: rgba(94, 234, 212, 0.08);
+  --btn-bg-active: rgba(94, 234, 212, 0.28);
+  --focus: #5eead4;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #eef2f7;
+  --fg: #16323a;
+  --fg-muted: #4d6a70;
+  --panel-bg: rgba(255, 255, 255, 0.7);
+  --panel-border: rgba(13, 116, 110, 0.22);
+  --btn-bg: rgba(13, 116, 110, 0.06);
+  --btn-bg-active: rgba(13, 116, 110, 0.2);
+  --focus: #0d746e;
+}
