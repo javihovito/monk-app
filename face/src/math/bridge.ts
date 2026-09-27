@@ -8,6 +8,10 @@ import type { AudioLevels } from './audio';
  *   {"type": "levels", "level": 0.4, "bass": 0.2, "treble": 0.1}   // 0..1, ~30 per second
  *   {"type": "caption", "who": "user" | "monk", "text": "...", "final": true}
  *   {"type": "info", "items": [{"kind": "meeting" | "email", "text": "..."}]}   // at most 3 shown
+ *   {"type": "tts", "rate": 22050}  then binary Int16 LE mono chunks, then {"type": "tts_end"}
+ *
+ * Page → Monk (remote talk, LAN token mode only):
+ *   {"type": "ptt", "down": true | false}  with binary Int16 LE mono 16 kHz frames in between
  */
 export type CaptionSpeaker = 'user' | 'monk';
 export interface InfoItem {
@@ -19,7 +23,9 @@ export type BridgeMessage =
   | { type: 'state'; state: FaceState }
   | { type: 'levels'; levels: AudioLevels }
   | { type: 'caption'; who: CaptionSpeaker; text: string; final: boolean }
-  | { type: 'info'; items: InfoItem[] };
+  | { type: 'info'; items: InfoItem[] }
+  | { type: 'tts'; rate: number }
+  | { type: 'tts_end' };
 
 export const MAX_CAPTION_CHARS = 280;
 export const MAX_INFO_ITEMS = 3;
@@ -48,6 +54,10 @@ export function parseBridgeMessage(raw: string): BridgeMessage | null {
     const text = m.text.length > MAX_CAPTION_CHARS ? '…' + m.text.slice(-MAX_CAPTION_CHARS) : m.text;
     return { type: 'caption', who: m.who, text, final: m.final === true };
   }
+  if (m.type === 'tts' && typeof m.rate === 'number' && m.rate >= 8000 && m.rate <= 96000) {
+    return { type: 'tts', rate: m.rate };
+  }
+  if (m.type === 'tts_end') return { type: 'tts_end' };
   if (m.type === 'info' && Array.isArray(m.items)) {
     const items: InfoItem[] = [];
     for (const it of m.items) {

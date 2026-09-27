@@ -33,6 +33,7 @@ export interface FaceOptions {
 
 export type FaceTheme = 'dark' | 'light';
 
+const ORB_CAMERA_DISTANCE = 4.2;
 const PERF_ORB_DETAIL = 12;
 const PERF_NETWORK_DENSITY = 0.45;
 /** Reduced motion slows the animation clock to this fraction. */
@@ -90,7 +91,7 @@ export class FaceEngine {
     this.renderer.setClearColor(0x05070d, 1);
     this.renderer.autoClear = false;
 
-    this.orbCamera.position.set(0, 0, 4.2);
+    this.orbCamera.position.set(0, 0, ORB_CAMERA_DISTANCE);
     this.orb = new Orb({ detail: opts.orbDetail ?? 24 });
     this.orbScene.add(this.orb.group);
     this.network = new Network({ seed: opts.seed });
@@ -264,6 +265,10 @@ export class FaceEngine {
     this.sky.setResolution(size.x, size.y);
     this.network.setViewport(w, h, this.renderer.getPixelRatio());
     this.orbCamera.aspect = w / h;
+    // On portrait screens, back the camera off so the orb keeps fitting the width.
+    const distance = ORB_CAMERA_DISTANCE / Math.min(1, Math.max(0.35, w / h));
+    this.orbCamera.position.z = distance;
+    this.sky.setOrbRadius(0.5 / (distance * Math.tan(THREE.MathUtils.degToRad(22.5))));
     this.orbCamera.updateProjectionMatrix();
   }
 

@@ -33,3 +33,14 @@
   --caption-monk: rgba(16, 60, 64, 0.92);
   --caption-shadow: rgba(255, 255, 255, 0.7);
 }
+:root,
+:root[data-theme="dark"] {
+  --talk-bg: rgba(94, 234, 212, 0.14);
+  --talk-bg-active: rgba(255, 196, 92, 0.32);
+  --talk-border: rgba(94, 234, 212, 0.4);
+}
+:root[data-theme="light"] {
+  --talk-bg: rgba(13, 116, 110, 0.1);
+  --talk-bg-active: rgba(196, 128, 16, 0.25);
+  --talk-border: rgba(13, 116, 110, 0.35);
+}

@@ -10,6 +10,7 @@ export { FACE_STATES, type FaceState } from './math/states';
 export function createFace(canvas: HTMLCanvasElement, options?: FaceOptions): FaceEngine {
   return new FaceEngine(canvas, options);
 }
-export { connectBridge, DEFAULT_BRIDGE_URL, type BridgeOptions } from './bridge';
+export { connectBridge, DEFAULT_BRIDGE_URL, type BridgeConnection, type BridgeOptions } from './bridge';
 export { withToken, type CaptionSpeaker, type InfoItem } from './math/bridge';
 export { createOverlay, type Overlay } from './ui/overlay';
+export { createRemoteTalk, type RemoteTalk } from './ui/talk';

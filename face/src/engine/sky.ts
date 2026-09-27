@@ -31,6 +31,7 @@ export class Sky {
         uBloom: { value: 1 },
         uNebula: { value: 1 },
         uLight: { value: 0 },
+        uOrbRadius: { value: 0.29 },
       },
     }));
     this.mesh.frustumCulled = false;
@@ -39,6 +40,10 @@ export class Sky {
 
   setResolution(w: number, h: number): void {
     (this.mesh.material.uniforms.uResolution.value as THREE.Vector2).set(w, h);
+  }
+
+  setOrbRadius(r: number): void {
+    this.mesh.material.uniforms.uOrbRadius.value = r;
   }
 
   update(f: SkyFrame, clock: number): void {

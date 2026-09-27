@@ -22,3 +22,6 @@ button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .face-info.visible { opacity: 1; }
 .face-info li { margin: 2px 0; }
 @media (prefers-reduced-motion: reduce) { .face-caption, .face-info { transition: none; } }
+.talk-button { position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); transform: translateX(-50%); padding: 14px 28px; border-radius: 999px; border: 1px solid var(--talk-border); background: var(--talk-bg); font-size: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.talk-button[aria-pressed="true"] { background: var(--talk-bg-active); }
+body:has(.talk-button) .face-captions { bottom: calc(max(24px, env(safe-area-inset-bottom)) + 72px); }

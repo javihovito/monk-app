@@ -17,6 +17,8 @@ uniform float uBloom;
 uniform float uNebula;
 /** 0 = deep space, 1 = pale dawn. */
 uniform float uLight;
+/** The orb's on-screen radius in height units (0.29 on landscape screens). */
+uniform float uOrbRadius;
 
 float hash21(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
@@ -75,9 +77,10 @@ void main() {
   float w1 = smoothstep(0.56, 0.82, n1);
   float w2 = smoothstep(0.58, 0.84, n2);
   float w3 = smoothstep(0.57, 0.85, n3);
-  float bloom = 0.07 * exp(-pow(r / 0.32, 2.0))
-              + 0.045 * exp(-pow(r / 0.55, 2.0))
-              + 0.02 * exp(-pow(r / 1.00, 2.0));
+  float k = uOrbRadius / 0.29;
+  float bloom = 0.07 * exp(-pow(r / (0.32 * k), 2.0))
+              + 0.045 * exp(-pow(r / (0.55 * k), 2.0))
+              + 0.02 * exp(-pow(r / (1.00 * k), 2.0));
 
   // --- Dark: near-black navy, darker toward the edges.
   vec3 dark = mix(vec3(0.028, 0.040, 0.085), vec3(0.008, 0.011, 0.028), smoothstep(0.1, 0.95, r));
@@ -90,7 +93,7 @@ void main() {
   dark += vec3(0.85, 0.92, 1.0) * s * smoothstep(0.05, 0.4, r);
   // Orb-coloured bloom behind the centre (the orb's screen radius is ~0.29), tiny pale-cyan core.
   dark += uOrbColor * bloom * uBloom;
-  dark += vec3(0.75, 0.95, 1.0) * 0.035 * exp(-pow(r / 0.07, 2.0)) * uBloom;
+  dark += vec3(0.75, 0.95, 1.0) * 0.035 * exp(-pow(r / (0.07 * k), 2.0)) * uBloom;
   dark *= 1.0 - 0.45 * smoothstep(0.45, 1.1, r);
 
   // --- Light: pale dawn, nebula as soft tints, no stars.

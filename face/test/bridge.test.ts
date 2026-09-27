@@ -43,6 +43,12 @@ describe('bridge protocol', () => {
     expect(withToken('ws://h:1/face', null)).toBe('ws://h:1/face');
   });
 
+  it('parses tts framing and rejects silly rates', () => {
+    expect(parseBridgeMessage('{"type":"tts","rate":22050}')).toEqual({ type: 'tts', rate: 22050 });
+    expect(parseBridgeMessage('{"type":"tts","rate":5}')).toBeNull();
+    expect(parseBridgeMessage('{"type":"tts_end"}')).toEqual({ type: 'tts_end' });
+  });
+
   it('ignores garbage', () => {
     for (const raw of ['', 'not json', 'null', '42', '{"type":"other"}']) expect(parseBridgeMessage(raw)).toBeNull();
   });
