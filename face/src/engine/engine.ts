@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Orb, type OrbFrame } from './orb';
+import { Sky } from './sky';
 
 export interface FaceOptions {
   /** Cap on devicePixelRatio. */
@@ -34,6 +35,7 @@ export class FaceEngine {
   private readonly orbScene = new THREE.Scene();
   private readonly orbCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 50);
   private readonly orb: Orb;
+  private readonly sky = new Sky();
   private readonly resizeObserver: ResizeObserver;
   private readonly frame: OrbFrame = { ...IDLE, colorA: [...IDLE.colorA], colorB: [...IDLE.colorB] };
   private rafId = 0;
@@ -67,6 +69,8 @@ export class FaceEngine {
     const h = Math.max(1, this.canvas.clientHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.opts.maxPixelRatio ?? 2));
     this.renderer.setSize(w, h, false);
+    const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
+    this.sky.setResolution(size.x, size.y);
     this.orbCamera.aspect = w / h;
     this.orbCamera.updateProjectionMatrix();
   }
@@ -79,8 +83,10 @@ export class FaceEngine {
     this.clock += dt;
 
     this.orb.update(this.frame, this.clock, dt);
+    this.sky.update({ orbColor: this.frame.colorA, bloom: 1 + this.frame.level * 1.5, nebula: 1 }, this.clock);
 
     this.renderer.clear(true, true, true);
+    this.renderer.render(this.sky.scene, this.sky.camera);
     this.renderer.clearDepth();
     this.renderer.render(this.orbScene, this.orbCamera);
   };
@@ -91,6 +97,7 @@ export class FaceEngine {
     cancelAnimationFrame(this.rafId);
     this.resizeObserver.disconnect();
     this.orb.dispose();
+    this.sky.dispose();
     this.renderer.dispose();
     this.renderer.forceContextLoss();
   }
