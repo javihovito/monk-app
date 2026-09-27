@@ -16,6 +16,8 @@ export class Network {
   private readonly lines: THREE.LineSegments<THREE.BufferGeometry, THREE.ShaderMaterial>;
   private readonly dust: THREE.Points<THREE.BufferGeometry, THREE.ShaderMaterial>;
   private spin = 0;
+  private themeNodeScale = 1;
+  private lineThemeScale = 1;
 
   constructor(options: NetworkOptions = {}) {
     this.nodes = new THREE.Points(new THREE.BufferGeometry(), new THREE.ShaderMaterial({
@@ -124,9 +126,22 @@ export class Network {
     );
     this.camera.lookAt(0, 0, 0);
 
-    this.lines.material.uniforms.uOpacity.value = f.lineOpacity;
-    this.nodes.material.uniforms.uSizeScale.value = f.nodeScale;
+    this.lines.material.uniforms.uOpacity.value = Math.min(1, f.lineOpacity * this.lineThemeScale);
+    this.nodes.material.uniforms.uSizeScale.value = f.nodeScale * this.themeNodeScale;
     this.nodes.material.uniforms.uBrightness.value = f.nodeBrightness;
+  }
+
+  /**
+   * Additive blending vanishes on a light background, so light mode switches to
+   * normal blending and makes nodes lighter and smaller so they don't read as ink blots.
+   */
+  setTheme(light: boolean): void {
+    const blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+    for (const o of [this.nodes, this.lines, this.dust]) o.material.blending = blending;
+    this.themeNodeScale = light ? 0.7 : 1;
+    this.nodes.material.uniforms.uAlpha.value = light ? 0.55 : 1;
+    this.dust.material.uniforms.uAlpha.value = light ? 0.25 : 0.45;
+    this.lineThemeScale = light ? 1.4 : 1;
   }
 
   dispose(): void {

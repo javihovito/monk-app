@@ -88,6 +88,7 @@ void main() {
 export const glowFragment = /* glsl */ `
 uniform vec3 uColor;
 uniform float uGlow;
+uniform float uLight;
 varying vec3 vNormalV;
 varying vec3 vViewPos;
 void main() {
@@ -97,6 +98,8 @@ void main() {
   float outer = smoothstep(0.0, 0.62, d);          // fade out toward the shell edge
   float inner = 1.0 - smoothstep(0.58, 0.92, d);   // fade out toward the centre
   float halo = pow(outer, 3.0) * inner;
-  gl_FragColor = vec4(uColor * halo * uGlow, halo * uGlow);
+  // Additive in dark mode (premultiplied); plain colour with alpha in light mode.
+  vec3 rgb = mix(uColor * halo * uGlow, uColor, uLight);
+  gl_FragColor = vec4(rgb, clamp(halo * uGlow * mix(1.0, 0.55, uLight), 0.0, 1.0));
 }
 `;

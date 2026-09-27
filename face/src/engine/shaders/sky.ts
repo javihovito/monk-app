@@ -15,6 +15,8 @@ uniform float uClock;
 uniform vec3 uOrbColor;
 uniform float uBloom;
 uniform float uNebula;
+/** 0 = deep space, 1 = pale dawn. */
+uniform float uLight;
 
 float hash21(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
@@ -67,30 +69,39 @@ void main() {
   float r = length(p);
   float t = uClock;
 
-  // Near-black navy, darker toward the edges.
-  vec3 col = mix(vec3(0.028, 0.040, 0.085), vec3(0.008, 0.011, 0.028), smoothstep(0.1, 0.95, r));
-
-  // Nebula wisps: soft thresholds so they read as filaments, not fog.
   float n1 = fbm(p * 1.7 + vec2(t * 0.006, -t * 0.004));
   float n2 = fbm(p * 2.2 + vec2(-t * 0.005, t * 0.003) + 11.0);
   float n3 = fbm(p * 1.3 + vec2(t * 0.003, t * 0.005) + 23.0);
-  col += vec3(0.04, 0.26, 0.22) * smoothstep(0.56, 0.82, n1) * 0.45 * uNebula;
-  col += vec3(0.22, 0.08, 0.34) * smoothstep(0.58, 0.84, n2) * 0.45 * uNebula;
-  col += vec3(0.05, 0.12, 0.36) * smoothstep(0.57, 0.85, n3) * 0.35 * uNebula;
-
-  // Stars, dimmed where the bloom sits so the orb stays the focus.
-  float s = stars(p, 180.0, 0.972, 0.9, 1.7) + stars(p, 42.0, 0.93, 2.2, 0.8) * 0.8;
-  col += vec3(0.85, 0.92, 1.0) * s * smoothstep(0.05, 0.4, r);
-
-  // Orb-coloured bloom behind the centre (the orb's screen radius is ~0.29).
+  float w1 = smoothstep(0.56, 0.82, n1);
+  float w2 = smoothstep(0.58, 0.84, n2);
+  float w3 = smoothstep(0.57, 0.85, n3);
   float bloom = 0.07 * exp(-pow(r / 0.32, 2.0))
               + 0.045 * exp(-pow(r / 0.55, 2.0))
               + 0.02 * exp(-pow(r / 1.00, 2.0));
-  col += uOrbColor * bloom * uBloom;
-  col += vec3(0.75, 0.95, 1.0) * 0.035 * exp(-pow(r / 0.07, 2.0)) * uBloom;
 
-  // Gentle vignette.
-  col *= 1.0 - 0.45 * smoothstep(0.45, 1.1, r);
+  // --- Dark: near-black navy, darker toward the edges.
+  vec3 dark = mix(vec3(0.028, 0.040, 0.085), vec3(0.008, 0.011, 0.028), smoothstep(0.1, 0.95, r));
+  // Nebula wisps: soft thresholds so they read as filaments, not fog.
+  dark += vec3(0.04, 0.26, 0.22) * w1 * 0.45 * uNebula;
+  dark += vec3(0.22, 0.08, 0.34) * w2 * 0.45 * uNebula;
+  dark += vec3(0.05, 0.12, 0.36) * w3 * 0.35 * uNebula;
+  // Stars, dimmed where the bloom sits so the orb stays the focus.
+  float s = stars(p, 180.0, 0.972, 0.9, 1.7) + stars(p, 42.0, 0.93, 2.2, 0.8) * 0.8;
+  dark += vec3(0.85, 0.92, 1.0) * s * smoothstep(0.05, 0.4, r);
+  // Orb-coloured bloom behind the centre (the orb's screen radius is ~0.29), tiny pale-cyan core.
+  dark += uOrbColor * bloom * uBloom;
+  dark += vec3(0.75, 0.95, 1.0) * 0.035 * exp(-pow(r / 0.07, 2.0)) * uBloom;
+  dark *= 1.0 - 0.45 * smoothstep(0.45, 1.1, r);
+
+  // --- Light: pale dawn, nebula as soft tints, no stars.
+  vec3 light = mix(vec3(0.93, 0.95, 0.98), vec3(0.98, 0.95, 0.92), smoothstep(-0.5, 0.5, -p.y));
+  light = mix(light, vec3(0.80, 0.93, 0.91), w1 * 0.30 * uNebula);
+  light = mix(light, vec3(0.90, 0.85, 0.96), w2 * 0.30 * uNebula);
+  light = mix(light, vec3(0.83, 0.88, 0.97), w3 * 0.25 * uNebula);
+  light = mix(light, uOrbColor, clamp(bloom * uBloom * 1.6, 0.0, 0.35));
+  light *= 1.0 - 0.10 * smoothstep(0.5, 1.2, r);
+
+  vec3 col = mix(dark, light, uLight);
 
   gl_FragColor = vec4(col, 1.0);
 }

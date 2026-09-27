@@ -1,4 +1,4 @@
-import { createFace, FACE_STATES, type FaceEngine, type FaceState } from '../src/index';
+import { createFace, FACE_STATES, type FaceEngine, type FaceState, type FaceTheme, type PerfMode } from '../src/index';
 
 let canvas = document.getElementById('face') as HTMLCanvasElement;
 let face: FaceEngine;
@@ -20,9 +20,50 @@ function reflect(state: FaceState): void {
   for (const [s, b] of buttons) b.setAttribute('aria-pressed', String(s === state));
 }
 
+// Theme: remembered choice, else the operating system's preference.
+const THEME_KEY = 'monk-face-theme';
+function storedTheme(): FaceTheme | null {
+  try {
+    const v = localStorage.getItem(THEME_KEY);
+    return v === 'dark' || v === 'light' ? v : null;
+  } catch {
+    return null;
+  }
+}
+let theme: FaceTheme = storedTheme() ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+let perfMode: PerfMode = 'auto';
+
+function radio(groupId: string, attr: string, value: string): void {
+  document.querySelectorAll<HTMLButtonElement>(`#${groupId} [role=radio]`).forEach((b) => {
+    b.setAttribute('aria-checked', String(b.dataset[attr] === value));
+  });
+}
+
+function applyTheme(next: FaceTheme): void {
+  theme = next;
+  document.documentElement.dataset.theme = next;
+  radio('theme', 'theme', next);
+  face?.setTheme(next);
+}
+
+document.querySelectorAll<HTMLButtonElement>('#theme [role=radio]').forEach((b) => {
+  b.addEventListener('click', () => {
+    applyTheme(b.dataset.theme as FaceTheme);
+    try { localStorage.setItem(THEME_KEY, theme); } catch { /* storage unavailable */ }
+  });
+});
+
+document.querySelectorAll<HTMLButtonElement>('#perf [role=radio]').forEach((b) => {
+  b.addEventListener('click', () => {
+    perfMode = b.dataset.mode as PerfMode;
+    radio('perf', 'mode', perfMode);
+    face.setPerformanceMode(perfMode);
+  });
+});
+
 function mount(): void {
   const state = face ? face.getState() : 'idle';
-  face = createFace(canvas, { state });
+  face = createFace(canvas, { state, theme, performance: perfMode });
   face.onStateChange(reflect);
   reflect(state);
   if (micStream) face.attachMic(micStream);
@@ -76,5 +117,6 @@ document.getElementById('recreate')!.addEventListener('click', () => {
   mount();
 });
 
+applyTheme(theme);
 mount();
 Object.assign(window, { face: () => face });

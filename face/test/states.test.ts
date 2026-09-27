@@ -42,3 +42,10 @@ describe('state table', () => {
     expect((at60.glow - start) / (goal.glow - start)).toBeGreaterThan(0.95);
   });
 });
+
+describe('state labels', () => {
+  it('names every state', async () => {
+    const { STATE_LABELS } = await import('../src/math/states');
+    for (const s of FACE_STATES) expect(STATE_LABELS[s].length).toBeGreaterThan(0);
+  });
+});

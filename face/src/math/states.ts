@@ -105,3 +105,13 @@ export function stepVisual(current: VisualParams, target: VisualParams, dt: numb
   for (const k of SCALAR_KEYS) current[k] = approach(current[k], target[k], rate, dt);
   return current;
 }
+
+/** What the live region announces for each state. */
+export const STATE_LABELS: Readonly<Record<FaceState, string>> = {
+  idle: 'Idle',
+  arming: 'Waiting for the microphone',
+  listening: 'Listening',
+  processing: 'Thinking',
+  speaking: 'Speaking',
+  error: 'Something went wrong',
+};

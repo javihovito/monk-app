@@ -62,6 +62,7 @@ export class Orb {
       uniforms: {
         uColor: { value: new THREE.Vector3() },
         uGlow: { value: 0 },
+        uLight: { value: 0 },
       },
     }));
 
@@ -138,6 +139,14 @@ export class Orb {
       ring.material.color.setRGB(...f.colorB, THREE.SRGBColorSpace);
       ring.visible = f.ringOpacity > 0.003;
     }
+  }
+
+  /** Additive glow disappears on a light background; use normal blending there. */
+  setTheme(light: boolean): void {
+    const blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+    this.glow.material.blending = blending;
+    this.glow.material.uniforms.uLight.value = light ? 1 : 0;
+    for (const r of this.rings) r.material.blending = blending;
   }
 
   dispose(): void {

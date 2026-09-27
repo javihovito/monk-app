@@ -1,7 +1,8 @@
 import { FaceEngine, type FaceOptions } from './engine/engine';
 
 export { FaceEngine } from './engine/engine';
-export type { FaceOptions } from './engine/engine';
+export type { FaceOptions, FaceTheme } from './engine/engine';
+export type { PerfMode } from './math/perf';
 export type { PlaybackSource } from './engine/audio';
 export { FACE_STATES, type FaceState } from './math/states';
 

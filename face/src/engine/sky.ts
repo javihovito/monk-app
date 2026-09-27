@@ -8,6 +8,8 @@ export interface SkyFrame {
   bloom: number;
   /** Nebula brightness multiplier. */
   nebula: number;
+  /** 0 = dark, 1 = light, eased by the engine. */
+  light: number;
 }
 
 /** Full-screen quad drawn first, with depth testing off. */
@@ -28,6 +30,7 @@ export class Sky {
         uOrbColor: { value: new THREE.Vector3() },
         uBloom: { value: 1 },
         uNebula: { value: 1 },
+        uLight: { value: 0 },
       },
     }));
     this.mesh.frustumCulled = false;
@@ -44,6 +47,7 @@ export class Sky {
     (u.uOrbColor.value as THREE.Vector3).set(...f.orbColor);
     u.uBloom.value = f.bloom;
     u.uNebula.value = f.nebula;
+    u.uLight.value = f.light;
   }
 
   dispose(): void {
