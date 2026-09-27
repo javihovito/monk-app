@@ -2,7 +2,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const files = ['index.html', ...readdirSync('demo').map((f) => join('demo', f))]
+const files = ['index.html', 'monk.html', ...readdirSync('demo').map((f) => join('demo', f))]
   .filter((f) => /\.(css|html|ts)$/.test(f) && !f.endsWith('tokens.css'));
 const pattern = /#[0-9a-fA-F]{3,8}\b|\b(rgba?|hsla?|oklch|lab|lch)\(/g;
 let bad = 0;

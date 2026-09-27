@@ -1,10 +1,12 @@
 import type { FaceEngine } from './engine/engine';
-import { parseBridgeMessage, reconnectDelay } from './math/bridge';
+import { parseBridgeMessage, reconnectDelay, type CaptionSpeaker, type InfoItem } from './math/bridge';
 
 export const DEFAULT_BRIDGE_URL = 'ws://127.0.0.1:8767/face';
 
 export interface BridgeOptions {
   onStatus?: (connected: boolean) => void;
+  onCaption?: (who: CaptionSpeaker, text: string, final: boolean) => void;
+  onInfo?: (items: InfoItem[]) => void;
 }
 
 /**
@@ -28,7 +30,9 @@ export function connectBridge(face: FaceEngine, url = DEFAULT_BRIDGE_URL, opts: 
       const msg = typeof e.data === 'string' ? parseBridgeMessage(e.data) : null;
       if (!msg) return;
       if (msg.type === 'state') face.setState(msg.state);
-      else face.pushAudioLevels(msg.levels);
+      else if (msg.type === 'levels') face.pushAudioLevels(msg.levels);
+      else if (msg.type === 'caption') opts.onCaption?.(msg.who, msg.text, msg.final);
+      else opts.onInfo?.(msg.items);
     };
     ws.onclose = () => {
       opts.onStatus?.(false);

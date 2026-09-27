@@ -22,3 +22,14 @@
   --btn-bg-active: rgba(13, 116, 110, 0.2);
   --focus: #0d746e;
 }
+:root,
+:root[data-theme="dark"] {
+  --caption-user: rgba(255, 214, 140, 0.85);
+  --caption-monk: rgba(207, 240, 236, 0.92);
+  --caption-shadow: rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="light"] {
+  --caption-user: rgba(138, 88, 10, 0.9);
+  --caption-monk: rgba(16, 60, 64, 0.92);
+  --caption-shadow: rgba(255, 255, 255, 0.7);
+}

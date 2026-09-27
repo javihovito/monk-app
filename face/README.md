@@ -33,6 +33,19 @@ face.destroy();                   // stops the loop, releases audio taps and the
 - A polite live region announces the state; pass `liveRegion` to use your own element.
 - Reduced motion follows the OS setting (or `setReducedMotion(true | false | null)`).
 
+## Monk page
+
+`monk.html` is the face Monk's Python voice loop drives over `ws://127.0.0.1:8767/face`.
+Messages (JSON, one per frame; see `src/math/bridge.ts`):
+
+- `{"type":"state","state":"listening"}`
+- `{"type":"levels","level":0.4,"bass":0.2,"treble":0.1}`
+- `{"type":"caption","who":"user"|"monk","text":"...","final":true}`: fading captions under the orb
+- `{"type":"info","items":[{"kind":"meeting","text":"Design review at 3:00 PM"}]}`: shown while idle
+
+For viewing on another device, open `monk.html?ws=ws://<mac-ip>:8767/face&token=<token>`;
+the token is passed through to the socket.
+
 ## Layout
 
 - `src/math/`: pure, unit-tested logic (state table, easing, audio levels, galaxy drive,
