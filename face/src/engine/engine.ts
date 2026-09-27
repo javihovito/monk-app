@@ -1,12 +1,15 @@
 import * as THREE from 'three';
 import { Orb, type OrbFrame } from './orb';
 import { Sky } from './sky';
+import { Network, NETWORK_REST } from './network';
 
 export interface FaceOptions {
   /** Cap on devicePixelRatio. */
   maxPixelRatio?: number;
   /** Icosahedron detail for the orb mesh. */
   orbDetail?: number;
+  /** Seed for the star network layout. Same seed, same galaxy. */
+  seed?: number;
 }
 
 // Layer 1: a single calm idle look. Layer 4 replaces this with the state table.
@@ -27,7 +30,7 @@ const IDLE: OrbFrame = {
 };
 
 /**
- * One renderer, one WebGL context. Passes per frame: (sky, network — later layers),
+ * One renderer, one WebGL context. Passes per frame: sky, star network,
  * then clear depth and draw the orb with its own camera.
  */
 export class FaceEngine {
@@ -36,6 +39,7 @@ export class FaceEngine {
   private readonly orbCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 50);
   private readonly orb: Orb;
   private readonly sky = new Sky();
+  private readonly network: Network;
   private readonly resizeObserver: ResizeObserver;
   private readonly frame: OrbFrame = { ...IDLE, colorA: [...IDLE.colorA], colorB: [...IDLE.colorB] };
   private rafId = 0;
@@ -51,6 +55,7 @@ export class FaceEngine {
     this.orbCamera.position.set(0, 0, 4.2);
     this.orb = new Orb({ detail: opts.orbDetail ?? 24 });
     this.orbScene.add(this.orb.group);
+    this.network = new Network({ seed: opts.seed });
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(canvas);
@@ -71,6 +76,7 @@ export class FaceEngine {
     this.renderer.setSize(w, h, false);
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
     this.sky.setResolution(size.x, size.y);
+    this.network.setViewport(w, h, this.renderer.getPixelRatio());
     this.orbCamera.aspect = w / h;
     this.orbCamera.updateProjectionMatrix();
   }
@@ -83,10 +89,12 @@ export class FaceEngine {
     this.clock += dt;
 
     this.orb.update(this.frame, this.clock, dt);
+    this.network.update(NETWORK_REST, this.clock, dt);
     this.sky.update({ orbColor: this.frame.colorA, bloom: 1 + this.frame.level * 1.5, nebula: 1 }, this.clock);
 
     this.renderer.clear(true, true, true);
     this.renderer.render(this.sky.scene, this.sky.camera);
+    this.renderer.render(this.network.scene, this.network.camera);
     this.renderer.clearDepth();
     this.renderer.render(this.orbScene, this.orbCamera);
   };
@@ -98,6 +106,7 @@ export class FaceEngine {
     this.resizeObserver.disconnect();
     this.orb.dispose();
     this.sky.dispose();
+    this.network.dispose();
     this.renderer.dispose();
     this.renderer.forceContextLoss();
   }
