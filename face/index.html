@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monk Face</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./demo/demo.css">
+</head>
+<body>
+<canvas id="face" aria-hidden="true"></canvas>
+<details class="panel" id="debug">
+  <summary>Orb debug</summary>
+  <label>Voice level <input type="range" name="level" min="0" max="1" step="0.01" value="0"></label>
+  <label>Bass <input type="range" name="bass" min="0" max="1" step="0.01" value="0"></label>
+  <label>Treble <input type="range" name="treble" min="0" max="1" step="0.01" value="0"></label>
+  <label>Rings <input type="range" name="ringOpacity" min="0" max="1" step="0.01" value="0"></label>
+  <button type="button" id="recreate">Destroy and recreate</button>
+</details>
+<script type="module" src="./demo/main.ts"></script>
+</body>
+</html>

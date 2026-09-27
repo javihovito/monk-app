@@ -1,0 +1,11 @@
+:root {
+  --bg: #05070d;
+  --panel-bg: rgba(12, 18, 28, 0.72);
+  --panel-fg: #cfe7e4;
+  --panel-border: rgba(94, 234, 212, 0.18);
+}
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--panel-fg); font: 14px/1.4 system-ui, sans-serif; overflow: hidden; }
+#face { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+.panel { position: fixed; left: 16px; bottom: 16px; padding: 10px 12px; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 10px; backdrop-filter: blur(6px); }
+.panel label { display: flex; justify-content: space-between; gap: 12px; margin: 6px 0; }
+.panel button { margin-top: 6px; }
