@@ -1,3 +1,4 @@
+import { setupThemeSwitch } from './theme';
 import { createFace, FACE_STATES, type FaceEngine, type FaceState, type FaceTheme, type PerfMode } from '../src/index';
 
 let canvas = document.getElementById('face') as HTMLCanvasElement;
@@ -20,17 +21,6 @@ function reflect(state: FaceState): void {
   for (const [s, b] of buttons) b.setAttribute('aria-pressed', String(s === state));
 }
 
-// Theme: remembered choice, else the operating system's preference.
-const THEME_KEY = 'monk-face-theme';
-function storedTheme(): FaceTheme | null {
-  try {
-    const v = localStorage.getItem(THEME_KEY);
-    return v === 'dark' || v === 'light' ? v : null;
-  } catch {
-    return null;
-  }
-}
-let theme: FaceTheme = storedTheme() ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
 let perfMode: PerfMode = 'auto';
 
 function radio(groupId: string, attr: string, value: string): void {
@@ -38,20 +28,6 @@ function radio(groupId: string, attr: string, value: string): void {
     b.setAttribute('aria-checked', String(b.dataset[attr] === value));
   });
 }
-
-function applyTheme(next: FaceTheme): void {
-  theme = next;
-  document.documentElement.dataset.theme = next;
-  radio('theme', 'theme', next);
-  face?.setTheme(next);
-}
-
-document.querySelectorAll<HTMLButtonElement>('#theme [role=radio]').forEach((b) => {
-  b.addEventListener('click', () => {
-    applyTheme(b.dataset.theme as FaceTheme);
-    try { localStorage.setItem(THEME_KEY, theme); } catch { /* storage unavailable */ }
-  });
-});
 
 document.querySelectorAll<HTMLButtonElement>('#perf [role=radio]').forEach((b) => {
   b.addEventListener('click', () => {
@@ -117,6 +93,6 @@ document.getElementById('recreate')!.addEventListener('click', () => {
   mount();
 });
 
-applyTheme(theme);
+const theme: FaceTheme = setupThemeSwitch((t) => face?.setTheme(t));
 mount();
 Object.assign(window, { face: () => face });

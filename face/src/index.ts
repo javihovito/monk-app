@@ -10,3 +10,4 @@ export { FACE_STATES, type FaceState } from './math/states';
 export function createFace(canvas: HTMLCanvasElement, options?: FaceOptions): FaceEngine {
   return new FaceEngine(canvas, options);
 }
+export { connectBridge, DEFAULT_BRIDGE_URL, type BridgeOptions } from './bridge';

@@ -58,6 +58,8 @@ export class FaceEngine {
   private audioCtx: AudioContext | null = null;
   private micTap: AudioTap | null = null;
   private playbackTap: AudioTap | null = null;
+  private external: AudioLevels | null = null;
+  private externalAt = -1;
   private readonly listeners = new Set<(s: FaceState) => void>();
 
   private theme: FaceTheme = 'dark';
@@ -230,8 +232,19 @@ export class FaceEngine {
   }
 
   /** Real audio when a tap exists for the current state's source, else a synthetic envelope. */
+  /**
+   * Feeds audio levels computed elsewhere (e.g. a Python voice loop over a WebSocket).
+   * While fresh (under 250 ms old) they replace the taps and the synthetic voice.
+   * Values are 0..1; pass them already boosted for the mic if you want the floor.
+   */
+  pushAudioLevels(levels: Partial<AudioLevels>): void {
+    this.external = { level: levels.level ?? 0, bass: levels.bass ?? 0, treble: levels.treble ?? 0 };
+    this.externalAt = this.time;
+  }
+
   private readAudio(): AudioLevels {
     const src = audioSourceFor(this.state);
+    if (src !== 'none' && this.external && this.time - this.externalAt < 0.25) return this.external;
     if (src === 'mic') return this.micTap ? boostMic(this.micTap.read()) : syntheticVoice(this.time);
     if (src === 'playback') return this.playbackTap ? this.playbackTap.read() : syntheticVoice(this.time + 7.3);
     if (this.state === 'arming' && this.micTap) {

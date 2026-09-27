@@ -21,6 +21,7 @@ const face = createFace(canvas, { theme: 'dark' });
 face.setState('listening');       // idle | arming | listening | processing | speaking | error
 face.attachMic(micStream);        // MediaStream; tap only, nothing is played
 face.attachPlayback(ttsNode);     // AudioNode, <audio> element or MediaStream; tap only
+face.pushAudioLevels({ level, bass, treble }); // levels from elsewhere, e.g. a Python loop
 face.setTheme('light');
 face.setPerformanceMode('auto');  // auto | on | off
 face.destroy();                   // stops the loop, releases audio taps and the WebGL context
